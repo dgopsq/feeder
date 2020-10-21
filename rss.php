@@ -62,7 +62,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 	{
 		$pid = $product['id_product'];
 		$name = $product['name'];
-		$price = html_entity_decode(Tools::displayPrice(Product::getPriceStatic($pid), $currency), ENT_COMPAT, 'UTF-8');
+		$price = Product::getPriceStatic($pid, true, null, 2);
 		$stripped_description = strip_tags($product['description_short']);
 		$product_link = str_replace('&amp;', '&', htmlspecialchars($link->getproductLink($pid, $product['link_rewrite'], Category::getLinkRewrite((int)($product['id_category_default']), $cookie->id_lang)))).$affiliate;
 			
