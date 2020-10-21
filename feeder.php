@@ -33,7 +33,7 @@ class Feeder extends Module
 	
 	public function __construct()
 	{
-		$this->name = 'feeder';
+		$this->name = 'feedercustom';
 		$this->tab = 'front_office_features';
 		$this->version = '0.7.4';
 		$this->author = 'PrestaShop';
@@ -42,7 +42,7 @@ class Feeder extends Module
 		$this->_directory = dirname(__FILE__).'/../../';
 		parent::__construct();
 		
-		$this->displayName = $this->l('RSS products feed');
+		$this->displayName = $this->l('RSS products feed (custom)');
 		$this->description = $this->l('Generate a RSS feed for your latest products.');
 	}
 	
