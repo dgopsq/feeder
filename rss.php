@@ -64,7 +64,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 		$name = $product['name'];
 		$image = Image::getImages((int)($cookie->id_lang), $pid);
 		$price = html_entity_decode(Tools::displayPrice(Product::getPriceStatic($pid), $currency), ENT_COMPAT, 'UTF-8');
-		$stripped_description = strip_tags($product['description_short']);
+		$stripped_description = $product['description_short'];
 		$link = str_replace('&amp;', '&', htmlspecialchars($link->getproductLink($pid, $product['link_rewrite'], Category::getLinkRewrite((int)($product['id_category_default']), $cookie->id_lang)))).$affiliate;
 			
 		echo "\t\t<item>\n";
