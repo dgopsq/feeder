@@ -34,7 +34,7 @@ $number = ((int)(Tools::getValue('n')) ? (int)(Tools::getValue('n')) : 10);
 $orderBy = Tools::getProductsOrder('by', Tools::getValue('orderby'));
 $orderWay = Tools::getProductsOrder('way', Tools::getValue('orderway'));
 $id_category = ((int)(Tools::getValue('id_category')) ? (int)(Tools::getValue('id_category')) : Configuration::get('PS_HOME_CATEGORY'));
-$products = Product::getProducts((int)$context->language->id, 0, ($number > 10 ? 10 : $number), $orderBy, $orderWay, $id_category, true);
+$products = Product::getProducts((int)$context->language->id, 0, ($number), $orderBy, $orderWay, $id_category, true);
 $currency = new Currency((int)$context->currency->id);
 $affiliate = (Tools::getValue('ac') ? '?ac='.(int)(Tools::getValue('ac')) : '');
 $metas = Meta::getMetaByPage('index', (int)$context->language->id);
