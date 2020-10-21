@@ -27,7 +27,7 @@
 if (!defined('_PS_VERSION_'))
 	exit;
 
-class Feeder extends Module
+class Feedercustom extends Module
 {
 	private $_postErrors = array();
 	
