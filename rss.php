@@ -26,7 +26,7 @@
 include(dirname(__FILE__).'/../../config/config.inc.php');
 require_once(dirname(__FILE__).'/../../init.php');
 
-if (!Module::getInstanceByName('feeder')->active)
+if (!Module::getInstanceByName('feedercustom')->active)
 	exit;
 
 // Get data
