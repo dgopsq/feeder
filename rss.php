@@ -60,13 +60,16 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 <?php
 	foreach ($products AS $product)
 	{
-		$image = Image::getImages((int)($cookie->id_lang), $product['id_product']);
-		$price = html_entity_decode(Tools::displayPrice(Product::getPriceStatic($product['id_product']), $currency), ENT_COMPAT, 'UTF-8');
+		$pid = $product['id_product'];
+		$name = $product['name'];
+		$image = Image::getImages((int)($cookie->id_lang), $pid);
+		$price = html_entity_decode(Tools::displayPrice(Product::getPriceStatic($pid), $currency), ENT_COMPAT, 'UTF-8');
 		$stripped_description = strip_tags($product['description_short']);
-		$link = str_replace('&amp;', '&', htmlspecialchars($link->getproductLink($product['id_product'], $product['link_rewrite'], Category::getLinkRewrite((int)($product['id_category_default']), $cookie->id_lang)))).$affiliate;
+		$link = str_replace('&amp;', '&', htmlspecialchars($link->getproductLink($pid, $product['link_rewrite'], Category::getLinkRewrite((int)($product['id_category_default']), $cookie->id_lang)))).$affiliate;
 			
 		echo "\t\t<item>\n";
-		echo "\t\t\t<title><![CDATA[".$product['name']."]]></title>\n";
+		echo "\t\t\t<pid><![CDATA[".$pid."]]></pid>\n";
+		echo "\t\t\t<title><![CDATA[".$name."]]></title>\n";
 		echo "\t\t\t<description><![CDATA[".$stripped_description."]]></description>\n";
 		echo "\t\t\t<price><![CDATA[".$price."]]></price>\n";
 		echo "\t\t\t<link><![CDATA[".$link."]]></link>\n";
