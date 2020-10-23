@@ -29,14 +29,43 @@ require_once(dirname(__FILE__).'/../../init.php');
 if (!Module::getInstanceByName('feedercustom')->active)
 	exit;
 
+$list_divisor = ',';
+
+// Utilities
+function getFeatureValue($product_id, $feature_id)
+{
+	$value = null;
+
+	$features = Product::getFeaturesStatic($product_id);
+	
+	$target_feature = array_pop(
+		array_filter(
+			$features, 
+			function($item) use ($feature_id) { 
+				return $item["id_feature"] === $feature_id;
+			}
+		)
+	);
+
+	if ($target_feature) 
+	{
+		$target_feature_value = $target_feature["id_feature_value"];
+		$target_value_lang = array_pop(FeatureValue::getFeatureValueLang($target_feature_value));
+
+		if ($target_value_lang) 
+		{
+			$value = $target_value_lang["value"];
+		}
+	}
+
+	return $value;
+}
+
 // Get data
-$number = ((int)(Tools::getValue('n')) ? (int)(Tools::getValue('n')) : 10);
 $orderBy = Tools::getProductsOrder('by', Tools::getValue('orderby'));
 $orderWay = Tools::getProductsOrder('way', Tools::getValue('orderway'));
-$id_category = ((int)(Tools::getValue('id_category')) ? (int)(Tools::getValue('id_category')) : Configuration::get('PS_HOME_CATEGORY'));
-$products = Product::getProducts((int)$context->language->id, 0, ($number), $orderBy, $orderWay, $id_category, true);
+$products = Product::getProducts((int)$context->language->id, 0, 0, $orderBy, $orderWay, false, true);
 $currency = new Currency((int)$context->currency->id);
-$affiliate = (Tools::getValue('ac') ? '?ac='.(int)(Tools::getValue('ac')) : '');
 $metas = Meta::getMetaByPage('index', (int)$context->language->id);
 $shop_uri = Tools::getShopDomainSsl(true, true).__PS_BASE_URI__;
 
@@ -63,16 +92,63 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 		$pid = $product['id_product'];
 		$name = $product['name'];
 		$price = Product::getPriceStatic($pid, true, null, 2);
-		$stripped_description = strip_tags($product['description_short']);
-		$product_link = str_replace('&amp;', '&', htmlspecialchars($link->getproductLink($pid, $product['link_rewrite'], Category::getLinkRewrite((int)($product['id_category_default']), $cookie->id_lang)))).$affiliate;
-			
+		$description = $product['description'];
+		$stripped_short_description = strip_tags($product['description_short']);
+		$product_link = str_replace('&amp;', '&', htmlspecialchars($link->getproductLink($pid, $product['link_rewrite'], Category::getLinkRewrite((int)($product['id_category_default']), $cookie->id_lang))));
+		$is_available = $product['available_now'];
+		$language = $context->language->iso_code;
+		$images = Image::getImages((int)($cookie->id_lang), $pid);
+
+		$categories_ids = Product::getProductCategories($pid);
+		$categories = Category::getCategoryInformations($categories_ids);
+
+		$quantity = (int)StockAvailable::getQuantityAvailableByProduct($pid);
+		$condition = $product['condition'];
+		$tax_name = $product['tax_name'];
+		
+		$brand = getFeatureValue($pid, '16') ?: "-";
+
+		// Get a list of all the images
+		$all_images = [];
+
+		foreach ($images as $i)
+		{
+			$il = $link->getImageLink($product['link_rewrite'], $i['id_image']);
+
+			if ($il) array_push($all_images, $il);
+		}
+		
+		// Get categories
+		$all_categories_ids = [];
+
+		foreach ($categories as $c)
+		{
+			$cid = $c['id_category'];
+
+			if ($cid != null) 
+			{
+				array_push($all_categories_ids, $cid);
+			}
+		}
+
+
 		echo "\t\t<item>\n";
 		echo "\t\t\t<guid><![CDATA[".$pid."]]></guid>\n";
 		echo "\t\t\t<title><![CDATA[".$name."]]></title>\n";
-		echo "\t\t\t<description><![CDATA[".$stripped_description."]]></description>\n";
+		echo "\t\t\t<description><![CDATA[".$description."]]></description>\n";
+		echo "\t\t\t<shortdescription><![CDATA[".$stripped_short_description."]]></shortdescription>\n";
 		echo "\t\t\t<link><![CDATA[".$product_link."]]></link>\n";
 
+		echo "\t\t\t<language><![CDATA[".$language."]]></language>\n";
 		echo "\t\t\t<price><![CDATA[".$price."]]></price>\n";
+		echo "\t\t\t<availability><![CDATA[".$is_available."]]></availability>\n";
+		echo "\t\t\t<image><![CDATA[".$all_images[0]."]]></image>\n";
+		echo "\t\t\t<images><![CDATA[".implode($list_divisor, $all_images)."]]></images>\n";
+		echo "\t\t\t<quantity><![CDATA[".$quantity."]]></quantity>\n";
+		echo "\t\t\t<condition><![CDATA[".$condition."]]></condition>\n";
+		echo "\t\t\t<brand><![CDATA[".$brand."]]></brand>\n";
+		echo "\t\t\t<categoriesids><![CDATA[".implode($list_divisor, $all_categories_ids)."]]></categoriesids>\n";
+		echo "\t\t\t<taxname><![CDATA[".$tax_name."]]></taxname>\n";
 		echo "\t\t</item>\n";
 	}
 ?>
