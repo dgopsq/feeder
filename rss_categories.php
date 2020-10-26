@@ -29,7 +29,7 @@ require_once(dirname(__FILE__).'/../../init.php');
 if (!Module::getInstanceByName('feedercustom')->active)
 	exit;
 
-function render_categories($cats, $l) {
+function render_categories($cats, $l, $parent_id = null, $root_id = null) {
 	foreach ($cats AS $cat)
 	{
 			$cat_id = $cat["id_category"];
@@ -37,14 +37,19 @@ function render_categories($cats, $l) {
 			$cat_link = $l->getCategoryLink($cat_id);
 			$cat_children = $cat["children"];
 
+			$computed_root_id = $root_id === null ? $cat_id : $root_id;
+
 			echo "\t\t<item>\n";
 			echo "\t\t\t<id><![CDATA[".$cat_id."]]></id>\n";
 			echo "\t\t\t<name><![CDATA[".$cat_name."]]></name>\n";
 			echo "\t\t\t<link><![CDATA[".$cat_link."]]></link>\n";
+
+			echo "\t\t\t<parent><![CDATA[".$parent_id."]]></parent>\n";
+			echo "\t\t\t<root><![CDATA[".$root_id."]]></root>\n";
 			echo "\t\t</item>\n";
 
 			if ($cat_children)
-				render_categories($cat_children, $l);
+				render_categories($cat_children, $l, $cat_id, $computed_root_id);
 	}
 }
 
