@@ -104,7 +104,6 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 
 		$quantity = (int)StockAvailable::getQuantityAvailableByProduct($pid);
 		$condition = $product['condition'];
-		$tax_name = $product['tax_name'];
 		
 		$brand = getFeatureValue($pid, '16') ?: "-";
 
@@ -117,20 +116,6 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 
 			if ($il) array_push($all_images, $il);
 		}
-		
-		// Get categories
-		$all_categories_ids = [];
-
-		foreach ($categories as $c)
-		{
-			$cid = $c['id_category'];
-
-			if ($cid != null) 
-			{
-				array_push($all_categories_ids, $cid);
-			}
-		}
-
 
 		echo "\t\t<item>\n";
 		echo "\t\t\t<guid><![CDATA[".$pid."]]></guid>\n";
@@ -147,8 +132,21 @@ echo '<?xml version="1.0" encoding="UTF-8"?>'."\n";
 		echo "\t\t\t<quantity><![CDATA[".$quantity."]]></quantity>\n";
 		echo "\t\t\t<condition><![CDATA[".$condition."]]></condition>\n";
 		echo "\t\t\t<brand><![CDATA[".$brand."]]></brand>\n";
-		echo "\t\t\t<categoriesids><![CDATA[".implode($list_divisor, $all_categories_ids)."]]></categoriesids>\n";
-		echo "\t\t\t<taxname><![CDATA[".$tax_name."]]></taxname>\n";
+
+		echo "\t\t\t<categories>\n";
+		foreach ($categories as $cat)
+		{
+			$category_id = $cat['id_category'];
+			$category_name = $cat["name"];
+			$category_link = $link->getCategoryLink($category_id);
+
+			echo "\t\t\t\t<category>\n";
+			echo "\t\t\t\t\t<categoryid><![CDATA[".$category_id."]]></categoryid>\n";
+			echo "\t\t\t\t\t<url><![CDATA[".$category_link."]]></url>\n";
+			echo "\t\t\t\t</category>\n";
+		}
+		echo "\t\t\t</categories>\n";
+
 		echo "\t\t</item>\n";
 	}
 ?>
